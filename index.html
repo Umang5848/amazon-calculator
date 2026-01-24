@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon Profit Calculator (Editable Fees)</title>
+    <style>
+        :root { --amazon-blue: #232f3e; --amazon-orange: #ff9900; --bg: #f4f8fb; }
+        body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; background: var(--bg); padding: 20px; color: #333; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; flex-wrap: wrap; gap: 30px; }
+        h1 { width: 100%; text-align: center; color: var(--amazon-blue); border-bottom: 2px solid var(--amazon-orange); margin-bottom: 25px; padding-bottom: 10px; }
+        
+        /* Layout Columns */
+        .col-left { flex: 1; min-width: 300px; border-right: 1px solid #eee; padding-right: 20px; display: flex; flex-direction: column; }
+        .col-right { flex: 1.2; min-width: 350px; }
+
+        /* Inputs */
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px; }
+        input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
+        input:focus { border-color: var(--amazon-orange); outline: none; }
+        
+        /* New Editables Styling */
+        .editable-fee { background-color: #fef9e7; border: 1px solid #f0c14b; }
+
+        /* Button */
+        .calc-btn {
+            background-color: var(--amazon-blue); color: white; border: none; padding: 15px;
+            font-size: 18px; font-weight: bold; border-radius: 6px; cursor: pointer;
+            margin-top: 20px; transition: background 0.2s; width: 100%;
+        }
+        .calc-btn:hover { background-color: #37475a; }
+        
+        /* Results Area */
+        .results-card { background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 20px; }
+        .row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; }
+        .row.bold { font-weight: 700; color: var(--amazon-blue); border-top: 1px solid #ccc; margin-top: 5px; padding-top: 5px; }
+        
+        /* Logic Box */
+        .logic-box { background: #fff3cd; border: 1px solid #ffeeba; padding: 15px; border-radius: 8px; margin-top: 20px; }
+        .logic-title { font-weight: bold; color: #856404; margin-bottom: 10px; display: block; border-bottom: 1px solid #ffeeba; padding-bottom: 5px; }
+        .step-row { display: flex; justify-content: space-between; padding: 5px 0; font-family: monospace; font-size: 14px; }
+        .step-row.final { border-top: 2px dashed #856404; margin-top: 8px; padding-top: 8px; font-weight: bold; font-size: 16px; }
+        .minus { color: #dc3545; }
+        .plus { color: #28a745; }
+        
+        .profit-display { font-size: 24px; font-weight: 800; color: #2e7d32; text-align: center; margin-top: 20px; padding: 10px; background: #dff0d8; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Amazon Profit Logic Decoder</h1>
+
+    <div class="col-left">
+        <h3>1. Product Details</h3>
+        <div class="input-group">
+            <label>Selling Price (₹)</label>
+            <input type="number" id="price" value="2500" oninput="autoUpdateFees(); calculate()">
+        </div>
+        <div class="input-group">
+            <label>Package Weight (grams)</label>
+            <input type="number" id="weight" value="510" oninput="calculate()">
+        </div>
+        <div class="input-group">
+            <label>Product Cost (₹) (Inc. GST)</label>
+            <input type="number" id="cost" value="1225" oninput="calculate()">
+        </div>
+
+        <h3 style="margin-top:20px;">2. Editable Fees</h3>
+        <div class="input-group">
+            <label>Referral Fee % (Editable)</label>
+            <input type="number" id="refRateInput" value="11.5" step="0.1" class="editable-fee" oninput="calculate()">
+        </div>
+        <div class="input-group">
+            <label>Closing Fee ₹ (Editable)</label>
+            <input type="number" id="closingInput" value="65" class="editable-fee" oninput="calculate()">
+        </div>
+        
+        <button class="calc-btn" onclick="calculate()">Calculate Profit</button>
+    </div>
+
+    <div class="col-right">
+        <div class="results-card">
+            <h4>A. Amazon Fees Breakdown</h4>
+            <div class="row"><span>Referral Fee Amount:</span> <span id="valRef">₹0.00</span></div>
+            <div class="row"><span>Closing Fee Amount:</span> <span id="valClose">₹0.00</span></div>
+            <div class="row"><span>Shipping (Weight):</span> <span id="valShip">₹0.00</span></div>
+            <div class="row bold"><span>Total Fees (excl. tax):</span> <span id="valTotalFees">₹0.00</span></div>
+            <div class="row"><span>GST on Fees (18%):</span> <span id="valGstFees">₹0.00</span></div>
+        </div>
+
+        <div class="results-card">
+            <h4>B. Government Tax (GST)</h4>
+            <div class="row"><span>Collected from Customer:</span> <span id="valGstOut">₹0.00</span></div>
+            <div class="row" style="color:green"><span>- Credit (Parts):</span> <span id="valItcPart">₹0.00</span></div>
+            <div class="row" style="color:green"><span>- Credit (Fees):</span> <span id="valItcFee">₹0.00</span></div>
+            <div class="row bold"><span>Net Payable to Govt:</span> <span id="valNetGst" style="color:#c0392b">₹0.00</span></div>
+        </div>
+
+        <div class="logic-box">
+            <span class="logic-title">C. Step-by-Step Logic (Receipt)</span>
+            <div style="font-size:12px; color:#856404; margin-bottom:10px;">This explains exactly where your money goes:</div>
+            
+            <div class="step-row">
+                <span>1. Customer Pays You:</span>
+                <span class="plus" id="step1">+ ₹0.00</span>
+            </div>
+            <div class="step-row">
+                <span>2. You Pay for Product:</span>
+                <span class="minus" id="step2">- ₹0.00</span>
+            </div>
+            <div class="step-row">
+                <span>3. You Pay Amazon Fees:</span>
+                <span class="minus" id="step3">- ₹0.00</span>
+            </div>
+            <div class="step-row">
+                <span>4. You Pay Tax on Fees:</span>
+                <span class="minus" id="step4">- ₹0.00</span>
+            </div>
+            <div class="step-row">
+                <span>5. You Pay Net Tax to Govt:</span>
+                <span class="minus" id="step5">- ₹0.00</span>
+            </div>
+            
+            <div class="step-row final">
+                <span>= FINAL PROFIT IN HAND:</span>
+                <span id="step6">₹0.00</span>
+            </div>
+        </div>
+        
+        <div class="profit-display" id="finalProfitDisplay">₹0.00</div>
+    </div>
+</div>
+
+<script>
+// Helper to estimate fees based on price (Run when price changes)
+function autoUpdateFees() {
+    const price = parseFloat(document.getElementById('price').value) || 0;
+    
+    // Auto-Calculate Referral %
+    let refRate = 0;
+    if (price <= 300) refRate = 0; 
+    else if (price <= 1000) refRate = 8.5; 
+    else refRate = 11.5;
+    
+    // Auto-Calculate Closing Fee
+    let closeFee = 0;
+    if (price <= 300) closeFee = 6;
+    else if (price <= 500) closeFee = 11;
+    else if (price <= 1000) closeFee = 34;
+    else closeFee = 65;
+
+    // Update the inputs (User can edit these later if they want)
+    document.getElementById('refRateInput').value = refRate;
+    document.getElementById('closingInput').value = closeFee;
+}
+
+function calculate() {
+    // --- INPUTS ---
+    const price = parseFloat(document.getElementById('price').value) || 0;
+    const weight = parseFloat(document.getElementById('weight').value) || 0;
+    const cost = parseFloat(document.getElementById('cost').value) || 0;
+    
+    // NEW: Get Fee Rates from the inputs directly
+    const refRate = parseFloat(document.getElementById('refRateInput').value) || 0;
+    const closeFee = parseFloat(document.getElementById('closingInput').value) || 0;
+
+    // --- CALC 1: AMAZON FEES ---
+    const refFee = (price * refRate) / 100;
+
+    // Shipping (69, 89, 126...)
+    let shipFee = 0;
+    if (weight <= 500) shipFee = 69;
+    else if (weight <= 1000) shipFee = 89;
+    else if (weight <= 2000) shipFee = 126;
+    else shipFee = 126 + (Math.ceil((weight-2000)/1000)*34);
+
+    const totalAmzFees = refFee + closeFee + shipFee;
+    const gstOnFees = totalAmzFees * 0.18;
+
+    // --- CALC 2: GST ---
+    const gstCollected = price - (price / 1.18);
+    const gstPaidParts = cost - (cost / 1.18);
+    // Net Payable = Collected - Paid(Parts) - Paid(Fees)
+    let netGst = gstCollected - gstPaidParts - gstOnFees;
+    if (netGst < 0) netGst = 0; // Credit carried forward
+
+    // --- CALC 3: PROFIT ---
+    // Formula: Price - Cost - Fees - FeeGST - NetGST
+    const profit = price - cost - totalAmzFees - gstOnFees - netGst;
+
+
+    // --- DISPLAY UPDATE ---
+    const fmt = (n) => "₹" + n.toFixed(2);
+
+    // Section A
+    document.getElementById('valRef').innerText = fmt(refFee);
+    document.getElementById('valClose').innerText = fmt(closeFee);
+    document.getElementById('valShip').innerText = fmt(shipFee);
+    document.getElementById('valTotalFees').innerText = fmt(totalAmzFees);
+    document.getElementById('valGstFees').innerText = fmt(gstOnFees);
+
+    // Section B
+    document.getElementById('valGstOut').innerText = fmt(gstCollected);
+    document.getElementById('valItcPart').innerText = fmt(gstPaidParts);
+    document.getElementById('valItcFee').innerText = fmt(gstOnFees);
+    document.getElementById('valNetGst').innerText = fmt(netGst);
+
+    // Section C (Logic Box)
+    document.getElementById('step1').innerText = "+ " + fmt(price);
+    document.getElementById('step2').innerText = "- " + fmt(cost);
+    document.getElementById('step3').innerText = "- " + fmt(totalAmzFees);
+    document.getElementById('step4').innerText = "- " + fmt(gstOnFees);
+    document.getElementById('step5').innerText = "- " + fmt(netGst);
+    document.getElementById('step6').innerText = fmt(profit);
+    document.getElementById('finalProfitDisplay').innerText = fmt(profit);
+
+    // Color Logic
+    if(profit < 0) {
+        document.getElementById('finalProfitDisplay').style.color = "red";
+        document.getElementById('finalProfitDisplay').style.background = "#f8d7da";
+    } else {
+        document.getElementById('finalProfitDisplay').style.color = "#2e7d32";
+        document.getElementById('finalProfitDisplay').style.background = "#dff0d8";
+    }
+}
+
+// Initial calculation on load
+calculate();
+</script>
+
+</body>
+</html>
