@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RoboPrime Resistor Calculator</title>
+
+<style>
+body{
+font-family:Arial,Helvetica,sans-serif;
+background:#0b132b;
+margin:0;
+color:#fff;
+}
+header{
+background:#020617;
+padding:16px;
+text-align:center;
+font-size:24px;
+font-weight:bold;
+color:#38bdf8;
+}
+.container{
+max-width:950px;
+margin:auto;
+padding:20px;
+}
+.tabs{text-align:center;margin-bottom:20px;}
+.tabs button{
+padding:10px 18px;margin:5px;border:none;
+border-radius:8px;cursor:pointer;font-weight:bold;
+}
+.active{background:#38bdf8;color:#000;}
+
+.resistor-wrap{display:flex;justify-content:center;margin:30px 0;}
+.resistor{
+position:relative;width:420px;height:95px;
+background:#e0b07a;border-radius:60px;
+box-shadow: inset 0 0 20px rgba(0,0,0,.5);
+}
+.wire{position:absolute;width:120px;height:8px;background:#aaa;top:44px;}
+.left{left:-120px;} .right{right:-120px;}
+
+.band{position:absolute;width:18px;height:100%;top:0;}
+.band1{left:60px;}
+.band2{left:100px;}
+.band3{left:140px;}
+.band4{left:180px;}
+.band5{left:240px;}
+.band6{left:280px;}
+
+select{
+padding:10px;
+font-size:16px;
+border-radius:6px;
+border:none;
+min-width:110px;
+font-weight:bold;
+}
+.selectors{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:10px;
+}
+
+.result{
+margin-top:25px;
+text-align:center;
+background:#020617;
+padding:18px;
+border-radius:12px;
+font-size:20px;
+}
+footer{text-align:center;margin-top:30px;opacity:.7;}
+</style>
+
+</head>
+
+<body>
+<header>⚡ RoboPrime Resistor Calculator</header>
+
+<div class="container">
+
+<div class="tabs">
+<button class="active" onclick="setMode(4,this)">4 Band</button>
+<button onclick="setMode(5,this)">5 Band</button>
+<button onclick="setMode(6,this)">6 Band</button>
+</div>
+
+<div class="resistor-wrap">
+<div class="resistor">
+<div class="wire left"></div>
+<div class="wire right"></div>
+
+<div id="b1" class="band band1"></div>
+<div id="b2" class="band band2"></div>
+<div id="b3" class="band band3"></div>
+<div id="b4" class="band band4"></div>
+<div id="b5" class="band band5"></div>
+<div id="b6" class="band band6"></div>
+</div>
+</div>
+
+<div class="selectors" id="selectors"></div>
+
+<div class="result">
+Resistance: <b id="res">0 Ω</b><br>
+Tolerance: <b id="tol">±5%</b>
+</div>
+
+<footer>Designed by RoboPrime Electronics 🚀</footer>
+</div>
+
+<script>
+let mode=4;
+
+const digit={black:0,brown:1,red:2,orange:3,yellow:4,green:5,blue:6,violet:7,gray:8,white:9};
+const multiplier={black:1,brown:10,red:100,orange:1000,yellow:10000,green:100000,blue:1000000,violet:10000000,gold:0.1,silver:0.01};
+const tolerance={brown:"±1%",red:"±2%",green:"±0.5%",blue:"±0.25%",violet:"±0.1%",gray:"±0.05%",gold:"±5%",silver:"±10%"};
+const temp={brown:"100ppm",red:"50ppm",orange:"15ppm",yellow:"25ppm",blue:"10ppm",violet:"5ppm"};
+
+const allColors=["black","brown","red","orange","yellow","green","blue","violet","gray","white","gold","silver"];
+
+function setMode(m,btn){
+mode=m;
+document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
+btn.classList.add("active");
+render();
+}
+
+function render(){
+let html="";
+for(let i=1;i<=mode;i++){
+html+=`<select onchange="setColor(${i},this)">
+<option value="">Band ${i}</option>
+${allColors.map(c=>`<option value="${c}" style="background:${c};color:${(c=='black'||c=='blue'||c=='brown')?'#fff':'#000'}">${c}</option>`).join("")}
+</select>`;
+}
+document.getElementById("selectors").innerHTML=html;
+}
+
+function setColor(b,sel){
+let color=sel.value;
+let el=document.getElementById("b"+b);
+el.style.background=color;
+el.dataset.color=color;
+calculate();
+}
+
+function calculate(){
+let bands=[];
+for(let i=1;i<=mode;i++){
+bands.push(document.getElementById("b"+i).dataset.color);
+}
+
+if(!bands[0]||!bands[1]) return;
+
+let value=0;
+
+if(mode==4){
+let d1=digit[bands[0]]??0;
+let d2=digit[bands[1]]??0;
+let mult=multiplier[bands[2]]??1;
+value=(d1*10+d2)*mult;
+document.getElementById("tol").innerText=tolerance[bands[3]]||"";
+}
+
+if(mode>=5){
+let d1=digit[bands[0]]??0;
+let d2=digit[bands[1]]??0;
+let d3=digit[bands[2]]??0;
+let mult=multiplier[bands[3]]??1;
+value=(d1*100+d2*10+d3)*mult;
+document.getElementById("tol").innerText=tolerance[bands[4]]||"";
+}
+
+if(mode==6){
+document.getElementById("tol").innerText += " | "+(temp[bands[5]]||"");
+}
+
+document.getElementById("res").innerText=format(value);
+}
+
+function format(r){
+if(r>=1000000) return (r/1000000)+" MΩ";
+if(r>=1000) return (r/1000)+" kΩ";
+return r+" Ω";
+}
+
+render();
+</script>
+
+</body>
+</html>
