@@ -1,196 +1,869 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RoboPrime Resistor Calculator</title>
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RoboPrime — Resistor Color Code Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
 <style>
-body{
-font-family:Arial,Helvetica,sans-serif;
-background:#0b132b;
-margin:0;
-color:#fff;
-}
-header{
-background:#020617;
-padding:16px;
-text-align:center;
-font-size:24px;
-font-weight:bold;
-color:#38bdf8;
-}
-.container{
-max-width:950px;
-margin:auto;
-padding:20px;
-}
-.tabs{text-align:center;margin-bottom:20px;}
-.tabs button{
-padding:10px 18px;margin:5px;border:none;
-border-radius:8px;cursor:pointer;font-weight:bold;
-}
-.active{background:#38bdf8;color:#000;}
+  :root {
+    --bg: #0f0f13;
+    --surface: #18181f;
+    --surface2: #22222c;
+    --border: #2e2e3a;
+    --accent: #ff6b2b;
+    --accent2: #ffb347;
+    --text: #f0eff5;
+    --muted: #7c7b8a;
+    --success: #4ade80;
+    --radius: 14px;
+    --band-h: 80px;
+  }
 
-.resistor-wrap{display:flex;justify-content:center;margin:30px 0;}
-.resistor{
-position:relative;width:420px;height:95px;
-background:#e0b07a;border-radius:60px;
-box-shadow: inset 0 0 20px rgba(0,0,0,.5);
-}
-.wire{position:absolute;width:120px;height:8px;background:#aaa;top:44px;}
-.left{left:-120px;} .right{right:-120px;}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-.band{position:absolute;width:18px;height:100%;top:0;}
-.band1{left:60px;}
-.band2{left:100px;}
-.band3{left:140px;}
-.band4{left:180px;}
-.band5{left:240px;}
-.band6{left:280px;}
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-select{
-padding:10px;
-font-size:16px;
-border-radius:6px;
-border:none;
-min-width:110px;
-font-weight:bold;
-}
-.selectors{
-display:flex;
-flex-wrap:wrap;
-justify-content:center;
-gap:10px;
-}
+  /* ── NAV ─────────────────────────────── */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 28px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(15,15,19,.92);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
 
-.result{
-margin-top:25px;
-text-align:center;
-background:#020617;
-padding:18px;
-border-radius:12px;
-font-size:20px;
-}
-footer{text-align:center;margin-top:30px;opacity:.7;}
+  /* RoboPrime Logo */
+  .nav-logo {
+    display: flex; align-items: center; gap: 12px;
+    text-decoration: none;
+  }
+  .nav-logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent) 0%, #e04010 100%);
+    border-radius: 9px;
+    display: grid; place-items: center;
+    font-size: 1rem;
+    box-shadow: 0 0 12px rgba(255,107,43,.35);
+    flex-shrink: 0;
+  }
+  .nav-logo-text {
+    display: flex; flex-direction: column; gap: 1px;
+  }
+  .nav-logo-brand {
+    font-size: 1.05rem; font-weight: 800; letter-spacing: -.03em;
+    color: var(--text);
+    line-height: 1;
+  }
+  .nav-logo-brand span {
+    color: var(--accent);
+  }
+  .nav-logo-sub {
+    font-size: .6rem; font-weight: 600; letter-spacing: .12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .nav-tabs {
+    display: flex; gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+  }
+  .tab-btn {
+    padding: 7px 18px;
+    border: none; background: none;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: .85rem; font-weight: 600;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .tab-btn.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* Nav right — band counter badge */
+  .nav-right { display: flex; align-items: center; gap: 10px; }
+  .band-badge {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: .78rem;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: .04em;
+    user-select: none;
+  }
+  .band-badge-dots {
+    display: flex; gap: 3px; align-items: center;
+  }
+  .band-badge-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--border);
+    transition: background .3s;
+  }
+  .band-badge-dot.active-dot {
+    background: var(--accent);
+    box-shadow: 0 0 6px rgba(255,107,43,.5);
+  }
+
+  /* ── LAYOUT ──────────────────────────── */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+  h1 {
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: 800;
+    letter-spacing: -.03em;
+    margin-bottom: 6px;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: .95rem;
+    margin-bottom: 32px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  /* ── RESISTOR VISUAL ─────────────────── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+  }
+  .resistor-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 0 24px;
+    position: relative;
+  }
+  .resistor-svg-wrap {
+    width: 100%;
+    max-width: 380px;
+  }
+
+  /* ── RESULT BOX ──────────────────────── */
+  .result-box {
+    margin-top: 20px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 24px;
+  }
+  .result-label {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .result-value {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(1.8rem, 5vw, 2.6rem);
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+  .result-value span { color: var(--muted); font-size: .55em; }
+  .result-tolerance {
+    font-size: 1rem;
+    color: var(--accent2);
+    margin-left: 8px;
+  }
+  .result-range {
+    margin-top: 10px;
+    font-size: .82rem;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+  }
+  .result-range strong { color: var(--text); }
+
+  .save-btn {
+    margin-top: 16px;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 22px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: .88rem;
+    cursor: pointer;
+    transition: opacity .2s, transform .15s;
+  }
+  .save-btn:hover { opacity: .88; transform: translateY(-1px); }
+  .save-btn:active { transform: scale(.97); }
+
+  /* ── META CARDS ──────────────────────── */
+  .meta-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .meta-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .meta-card-label {
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .meta-card-value { font-size: .9rem; font-weight: 600; }
+
+  /* ── BAND SELECTORS ──────────────────── */
+  .bands-col { display: flex; flex-direction: column; gap: 16px; }
+
+  .band-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    transition: border-color .2s;
+  }
+  .band-card:hover { border-color: #3e3e50; }
+
+  .band-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    gap: 8px;
+  }
+  .band-title {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: .95rem;
+    flex-shrink: 0;
+  }
+  .band-num {
+    width: 26px; height: 26px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    display: grid; place-items: center;
+    font-family: 'Space Mono', monospace;
+    font-size: .75rem;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  .band-current {
+    font-size: .72rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    background: rgba(255,107,43,.12);
+    border: 1px solid rgba(255,107,43,.25);
+    color: var(--accent);
+    border-radius: 20px;
+    font-family: 'Space Mono', monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
+
+  /* ── COLOR GRID — Desktop tiles ──────── */
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+  .color-swatch {
+    aspect-ratio: 1;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    position: relative;
+    transition: transform .15s, border-color .15s, box-shadow .15s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    overflow: hidden;
+    padding: 4px 3px;
+  }
+  .color-swatch:hover { transform: scale(1.07); }
+  .color-swatch.selected {
+    border-color: #fff;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.35), 0 4px 18px rgba(0,0,0,.5);
+    transform: scale(1.07);
+  }
+  .color-swatch::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,.6) 0%, rgba(0,0,0,.05) 60%, transparent 100%);
+    pointer-events: none;
+  }
+  .swatch-digit {
+    font-size: .95rem;
+    font-weight: 800;
+    color: rgba(255,255,255,.97);
+    text-shadow: 0 1px 6px rgba(0,0,0,1);
+    line-height: 1;
+    pointer-events: none;
+    position: relative; z-index: 1;
+    
+  }
+  .swatch-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: rgba(255,255,255,.9);
+    text-shadow: 0 1px 5px rgba(0,0,0,1);
+    line-height: 1;
+    pointer-events: none;
+    text-align: center;
+    white-space: nowrap;
+    position: relative; z-index: 1;
+  }
+
+  /* ── MOBILE: full-width list rows ────── */
+  @media (max-width: 780px) {
+    .color-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .color-swatch {
+      aspect-ratio: unset;
+      height: 52px;
+      border-radius: 10px;
+      flex-direction: row;
+      justify-content: flex-start;
+      padding: 0 14px;
+      gap: 14px;
+    }
+    .color-swatch::after {
+      background: linear-gradient(to right, rgba(0,0,0,.55) 0%, rgba(0,0,0,.15) 60%, transparent 100%);
+    }
+    .swatch-digit {
+      font-size: 1.1rem;
+      font-weight: 800;
+      min-width: 22px;
+      text-align: center;
+    }
+    .swatch-name {
+      font-size: .85rem;
+      font-weight: 700;
+      letter-spacing: .01em;
+      white-space: nowrap;
+    }
+    /* checkmark for selected on mobile */
+    .color-swatch.selected::before {
+      content: '✓';
+      position: absolute;
+      right: 14px;
+      font-size: 1rem;
+      color: #fff;
+      font-weight: 900;
+      z-index: 2;
+      text-shadow: 0 1px 4px rgba(0,0,0,.8);
+    }
+    .band-card { padding: 14px 16px; }
+    .band-current { max-width: 120px; font-size: .65rem; }
+    .band-title { font-size: .85rem; }
+  }
+
+  /* ── SAVED LIST ──────────────────────── */
+  .saved-section {
+    margin-top: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    display: none;
+  }
+  .saved-section.visible { display: block; }
+  .saved-title { font-weight: 700; margin-bottom: 14px; }
+  .saved-list { display: flex; flex-direction: column; gap: 8px; }
+  .saved-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: .82rem;
+  }
+  .saved-item-bands { display: flex; gap: 4px; }
+  .saved-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .del-btn {
+    background: none; border: none; color: var(--muted);
+    cursor: pointer; font-size: 1rem; padding: 2px 6px;
+    border-radius: 4px; transition: color .15s, background .15s;
+  }
+  .del-btn:hover { color: #f87171; background: rgba(248,113,113,.1); }
+
+  /* ── TOAST ───────────────────────────── */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--success); color: #0f2010;
+    padding: 12px 24px; border-radius: 100px;
+    font-weight: 700; font-size: .88rem;
+    transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+    z-index: 999; pointer-events: none; white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── RESPONSIVE ──────────────────────── */
+  @media (max-width: 780px) {
+    .grid { grid-template-columns: 1fr; }
+    .nav-tabs { display: none; }
+    .nav-logo-sub { display: none; }
+    .mobile-tabs {
+      display: flex; gap: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 20px;
+    }
+    .mobile-tabs .tab-btn { flex: 1; text-align: center; }
+    main { padding: 20px 14px 60px; }
+    h1 { font-size: 1.4rem; }
+    .subtitle { font-size: .85rem; margin-bottom: 20px; }
+    .result-value { font-size: 2rem; }
+    nav { padding: 12px 16px; }
+    .card { padding: 18px 16px; }
+  }
+  @media (min-width: 781px) { .mobile-tabs { display: none; } }
+
+  @media (max-width: 420px) {
+    nav { padding: 10px 12px; }
+    .band-badge-label { display: none; }
+    .nav-logo-brand { font-size: .92rem; }
+  }
+
+  /* ── ANIMATIONS ──────────────────────── */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .card, .band-card {
+    animation: fadeIn .4s ease both;
+  }
+  .band-card:nth-child(1) { animation-delay: .05s; }
+  .band-card:nth-child(2) { animation-delay: .1s; }
+  .band-card:nth-child(3) { animation-delay: .15s; }
+  .band-card:nth-child(4) { animation-delay: .2s; }
+  .band-card:nth-child(5) { animation-delay: .25s; }
+  .band-card:nth-child(6) { animation-delay: .3s; }
+
+  .resistor-body { transition: all .3s ease; }
 </style>
-
 </head>
-
 <body>
-<header>⚡ RoboPrime Resistor Calculator</header>
 
-<div class="container">
+<!-- NAV -->
+<nav>
+  <!-- RoboPrime Branding -->
+  <div class="nav-logo">
+    <div class="nav-logo-icon">🤖</div>
+    <div class="nav-logo-text">
+      <div class="nav-logo-brand">Robo<span>Prime</span></div>
+      <div class="nav-logo-sub">Electronics Tools</div>
+    </div>
+  </div>
 
-<div class="tabs">
-<button class="active" onclick="setMode(4,this)">4 Band</button>
-<button onclick="setMode(5,this)">5 Band</button>
-<button onclick="setMode(6,this)">6 Band</button>
-</div>
+  <div class="nav-tabs" id="navTabs">
+    <button class="tab-btn active" onclick="setBands(4,this)">4 Bands</button>
+    <button class="tab-btn" onclick="setBands(5,this)">5 Bands</button>
+    <button class="tab-btn" onclick="setBands(6,this)">6 Bands</button>
+  </div>
 
-<div class="resistor-wrap">
-<div class="resistor">
-<div class="wire left"></div>
-<div class="wire right"></div>
+  <!-- Band count indicator (replaces "?") -->
+  <div class="nav-right">
+    <div class="band-badge" id="navBandBadge">
+      <div class="band-badge-dots" id="navBadgeDots"></div>
+      <span class="band-badge-label" id="navBadgeLabel">4 BANDS</span>
+    </div>
+  </div>
+</nav>
 
-<div id="b1" class="band band1"></div>
-<div id="b2" class="band band2"></div>
-<div id="b3" class="band band3"></div>
-<div id="b4" class="band band4"></div>
-<div id="b5" class="band band5"></div>
-<div id="b6" class="band band6"></div>
-</div>
-</div>
+<main>
+  <h1>Resistor Color Code Calculator</h1>
+  <p class="subtitle">Identify resistance values by selecting color bands for your electronic projects.</p>
 
-<div class="selectors" id="selectors"></div>
+  <!-- Mobile tabs -->
+  <div class="mobile-tabs" id="mobileTabs">
+    <button class="tab-btn active" onclick="setBands(4,this,true)">4 Bands</button>
+    <button class="tab-btn" onclick="setBands(5,this,true)">5 Bands</button>
+    <button class="tab-btn" onclick="setBands(6,this,true)">6 Bands</button>
+  </div>
 
-<div class="result">
-Resistance: <b id="res">0 Ω</b><br>
-Tolerance: <b id="tol">±5%</b>
-</div>
+  <div class="grid">
+    <!-- LEFT: Visual + Result -->
+    <div class="card" style="animation-delay:.0s">
+      <div class="resistor-wrap">
+        <svg class="resistor-svg-wrap" viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg" id="resistorSVG">
+          <line x1="0" y1="60" x2="80" y2="60" stroke="#888" stroke-width="3" stroke-linecap="round"/>
+          <line x1="320" y1="60" x2="400" y2="60" stroke="#888" stroke-width="3" stroke-linecap="round"/>
+          <rect x="80" y="30" width="240" height="60" rx="12" fill="#d4c4a0" class="resistor-body" id="resistorBody"/>
+          <g id="bandsSVG"></g>
+        </svg>
+      </div>
 
-<footer>Designed by RoboPrime 🚀</footer>
-</div>
+      <div class="result-box">
+        <div class="result-label">Total Resistance</div>
+        <div class="result-value" id="resultValue">— <span>Ω</span></div>
+        <div class="result-tolerance" id="resultTolerance"></div>
+        <div class="result-range" id="resultRange"></div>
+        <button class="save-btn" onclick="saveResult()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save
+        </button>
+      </div>
+
+      <div class="meta-row">
+        <div class="meta-card">
+          <div class="meta-card-label">Standards</div>
+          <div class="meta-card-value">IEC 60062</div>
+        </div>
+        <div class="meta-card">
+          <div class="meta-card-label">Precision</div>
+          <div class="meta-card-value" id="precisionLabel">Standard E24</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Band selectors -->
+    <div class="bands-col" id="bandsCol"></div>
+  </div>
+
+  <!-- Saved -->
+  <div class="saved-section" id="savedSection">
+    <div class="saved-title">Saved Resistors</div>
+    <div class="saved-list" id="savedList"></div>
+  </div>
+</main>
+
+<div class="toast" id="toast">✓ Saved!</div>
 
 <script>
-let mode=4;
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const COLORS = [
+  { name:'Black',  hex:'#1a1a1a', digit:0,  mult:1,       tol:null,  tcr:250 },
+  { name:'Brown',  hex:'#8B4513', digit:1,  mult:10,      tol:1,     tcr:100 },
+  { name:'Red',    hex:'#cc2222', digit:2,  mult:100,     tol:2,     tcr:50  },
+  { name:'Orange', hex:'#e07020', digit:3,  mult:1000,    tol:null,  tcr:15  },
+  { name:'Yellow', hex:'#e8c010', digit:4,  mult:10000,   tol:null,  tcr:25  },
+  { name:'Green',  hex:'#2ecc51', digit:5,  mult:100000,  tol:.5,    tcr:20  },
+  { name:'Blue',   hex:'#2468e0', digit:6,  mult:1000000, tol:.25,   tcr:10  },
+  { name:'Violet', hex:'#8833cc', digit:7,  mult:10000000,tol:.1,    tcr:5   },
+  { name:'Grey',   hex:'#7a7a8a', digit:8,  mult:null,    tol:.05,   tcr:1   },
+  { name:'White',  hex:'#e8e8e0', digit:9,  mult:null,    tol:null,  tcr:null},
+  { name:'Gold',   hex:'#c8a832', digit:null,mult:.1,     tol:5,     tcr:null},
+  { name:'Silver', hex:'#a8a8b0', digit:null,mult:.01,    tol:10,    tcr:null},
+];
 
-const digit={black:0,brown:1,red:2,orange:3,yellow:4,green:5,blue:6,violet:7,gray:8,white:9};
-const multiplier={black:1,brown:10,red:100,orange:1000,yellow:10000,green:100000,blue:1000000,violet:10000000,gold:0.1,silver:0.01};
-const tolerance={brown:"±1%",red:"±2%",green:"±0.5%",blue:"±0.25%",violet:"±0.1%",gray:"±0.05%",gold:"±5%",silver:"±10%"};
-const temp={brown:"100ppm",red:"50ppm",orange:"15ppm",yellow:"25ppm",blue:"10ppm",violet:"5ppm"};
+function colorByName(n){ return COLORS.find(c=>c.name===n); }
 
-const allColors=["black","brown","red","orange","yellow","green","blue","violet","gray","white","gold","silver"];
+const BAND_DEFS = {
+  4: [
+    { id:'b1', label:'1st Band (Digit)',  type:'digit', options: COLORS.filter(c=>c.digit!==null), default:'Brown'  },
+    { id:'b2', label:'2nd Band (Digit)',  type:'digit', options: COLORS.filter(c=>c.digit!==null), default:'Red'    },
+    { id:'bm', label:'Multiplier',        type:'mult',  options: COLORS.filter(c=>c.mult!==null),  default:'Orange' },
+    { id:'bt', label:'Tolerance',         type:'tol',   options: COLORS.filter(c=>c.tol!==null),   default:'Gold'   },
+  ],
+  5: [
+    { id:'b1', label:'1st Band (Digit)',  type:'digit', options: COLORS.filter(c=>c.digit!==null), default:'Brown'  },
+    { id:'b2', label:'2nd Band (Digit)',  type:'digit', options: COLORS.filter(c=>c.digit!==null), default:'Red'    },
+    { id:'b3', label:'3rd Band (Digit)',  type:'digit', options: COLORS.filter(c=>c.digit!==null), default:'Black'  },
+    { id:'bm', label:'Multiplier',        type:'mult',  options: COLORS.filter(c=>c.mult!==null),  default:'Orange' },
+    { id:'bt', label:'Tolerance',         type:'tol',   options: COLORS.filter(c=>c.tol!==null),   default:'Brown'  },
+  ],
+  6: [
+    { id:'b1', label:'1st Band (Digit)',  type:'digit', options: COLORS.filter(c=>c.digit!==null), default:'Brown'  },
+    { id:'b2', label:'2nd Band (Digit)',  type:'digit', options: COLORS.filter(c=>c.digit!==null), default:'Red'    },
+    { id:'b3', label:'3rd Band (Digit)',  type:'digit', options: COLORS.filter(c=>c.digit!==null), default:'Black'  },
+    { id:'bm', label:'Multiplier',        type:'mult',  options: COLORS.filter(c=>c.mult!==null),  default:'Orange' },
+    { id:'bt', label:'Tolerance',         type:'tol',   options: COLORS.filter(c=>c.tol!==null),   default:'Brown'  },
+    { id:'bk', label:'Temp. Coefficient',type:'tcr',   options: COLORS.filter(c=>c.tcr!==null),   default:'Brown'  },
+  ],
+};
 
-function setMode(m,btn){
-mode=m;
-document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
-btn.classList.add("active");
-render();
+let numBands = 4;
+let selections = {};
+
+function initSelections() {
+  selections = {};
+  BAND_DEFS[numBands].forEach(b => { selections[b.id] = colorByName(b.default); });
 }
 
-function render(){
-let html="";
-for(let i=1;i<=mode;i++){
-html+=`<select onchange="setColor(${i},this)">
-<option value="">Band ${i}</option>
-${allColors.map(c=>`<option value="${c}" style="background:${c};color:${(c=='black'||c=='blue'||c=='brown')?'#fff':'#000'}">${c}</option>`).join("")}
-</select>`;
-}
-document.getElementById("selectors").innerHTML=html;
-}
-
-function setColor(b,sel){
-let color=sel.value;
-let el=document.getElementById("b"+b);
-el.style.background=color;
-el.dataset.color=color;
-calculate();
+// ── UPDATE BAND BADGE ─────────────────────────────────────────────────────────
+function updateBandBadge() {
+  const dots = document.getElementById('navBadgeDots');
+  const label = document.getElementById('navBadgeLabel');
+  if (!dots) return;
+  dots.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement('div');
+    d.className = 'band-badge-dot' + (i < numBands ? ' active-dot' : '');
+    dots.appendChild(d);
+  }
+  if (label) label.textContent = `${numBands} BANDS`;
 }
 
-function calculate(){
-let bands=[];
-for(let i=1;i<=mode;i++){
-bands.push(document.getElementById("b"+i).dataset.color);
+// ── RENDER BANDS ──────────────────────────────────────────────────────────────
+function renderBands() {
+  const col = document.getElementById('bandsCol');
+  col.innerHTML = '';
+  const defs = BAND_DEFS[numBands];
+
+  defs.forEach((def, i) => {
+    const card = document.createElement('div');
+    card.className = 'band-card';
+    card.style.animationDelay = `${i * 0.06}s`;
+
+    const sel = selections[def.id];
+    const badge = getBadge(def.type, sel);
+
+    card.innerHTML = `
+      <div class="band-header">
+        <div class="band-title">
+          <div class="band-num">${bandLetter(def.id)}</div>
+          ${def.label}
+        </div>
+        <div class="band-current" id="badge_${def.id}">${badge}</div>
+      </div>
+      <div class="color-grid" id="grid_${def.id}"></div>
+    `;
+    col.appendChild(card);
+
+    const grid = card.querySelector(`#grid_${def.id}`);
+    def.options.forEach(color => {
+      const sw = document.createElement('div');
+      sw.className = 'color-swatch' + (sel.name === color.name ? ' selected' : '');
+      sw.style.background = color.hex;
+      sw.title = color.name;
+
+      // digit / value label (top)
+      const digitSpan = document.createElement('span');
+      digitSpan.className = 'swatch-digit';
+      digitSpan.textContent = color.digit !== null ? color.digit
+        : (color.name === 'Gold' ? '×0.1' : '×0.01');
+
+      // color name label (bottom)
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'swatch-name';
+      nameSpan.textContent = color.name;
+
+      sw.appendChild(digitSpan);
+      sw.appendChild(nameSpan);
+      sw.addEventListener('click', () => selectColor(def.id, color));
+      grid.appendChild(sw);
+    });
+  });
+
+  updateResistorSVG();
+  calculate();
+  updateBandBadge();
 }
 
-if(!bands[0]||!bands[1]) return;
-
-let value=0;
-
-if(mode==4){
-let d1=digit[bands[0]]??0;
-let d2=digit[bands[1]]??0;
-let mult=multiplier[bands[2]]??1;
-value=(d1*10+d2)*mult;
-document.getElementById("tol").innerText=tolerance[bands[3]]||"";
+function bandLetter(id) {
+  const map = { b1:'1', b2:'2', b3:'3', bm:'M', bt:'T', bk:'K' };
+  return map[id] || id;
 }
 
-if(mode>=5){
-let d1=digit[bands[0]]??0;
-let d2=digit[bands[1]]??0;
-let d3=digit[bands[2]]??0;
-let mult=multiplier[bands[3]]??1;
-value=(d1*100+d2*10+d3)*mult;
-document.getElementById("tol").innerText=tolerance[bands[4]]||"";
+function getBadge(type, color) {
+  if (!color) return '—';
+  if (type === 'digit')  return `${color.name} (${color.digit})`;
+  if (type === 'mult')   return `${color.name} (×${fmtMult(color.mult)})`;
+  if (type === 'tol')    return `${color.name} (±${color.tol}%)`;
+  if (type === 'tcr')    return `${color.name} (${color.tcr} ppm/K)`;
+  return color.name;
 }
 
-if(mode==6){
-document.getElementById("tol").innerText += " | "+(temp[bands[5]]||"");
+function fmtMult(m) {
+  if (m >= 1e6) return (m/1e6)+'M';
+  if (m >= 1e3) return (m/1e3)+'k';
+  if (m < 1)    return m;
+  return m;
 }
 
-document.getElementById("res").innerText=format(value);
+// ── SELECT COLOR ──────────────────────────────────────────────────────────────
+function selectColor(bandId, color) {
+  selections[bandId] = color;
+  const grid = document.getElementById('grid_' + bandId);
+  grid.querySelectorAll('.color-swatch').forEach((sw, i) => {
+    const def = BAND_DEFS[numBands].find(d => d.id === bandId);
+    sw.classList.toggle('selected', def.options[i].name === color.name);
+  });
+  const def = BAND_DEFS[numBands].find(d => d.id === bandId);
+  document.getElementById('badge_' + bandId).textContent = getBadge(def.type, color);
+  updateResistorSVG();
+  calculate();
 }
 
-function format(r){
-if(r>=1000000) return (r/1000000)+" MΩ";
-if(r>=1000) return (r/1000)+" kΩ";
-return r+" Ω";
+// ── CALCULATE ─────────────────────────────────────────────────────────────────
+function calculate() {
+  const defs = BAND_DEFS[numBands];
+  const digits = defs.filter(d => d.type === 'digit').map(d => selections[d.id]?.digit ?? 0);
+  const multColor = selections['bm'];
+  const tolColor  = selections['bt'];
+  if (!multColor) return;
+  let base = 0;
+  digits.forEach((d, i) => { base = base * 10 + d; });
+  const resistance = base * multColor.mult;
+  const tol = tolColor?.tol ?? null;
+  const lo  = tol ? resistance * (1 - tol/100) : null;
+  const hi  = tol ? resistance * (1 + tol/100) : null;
+  document.getElementById('resultValue').innerHTML = `${fmtOhm(resistance)} <span>${ohmUnit(resistance)}</span>`;
+  document.getElementById('resultTolerance').textContent = tol ? `± ${tol}%` : '';
+  document.getElementById('resultRange').innerHTML = lo !== null
+    ? `Range: <strong>${fmtOhm(lo)}${ohmUnit(lo)}</strong> – <strong>${fmtOhm(hi)}${ohmUnit(hi)}</strong>`
+    : '';
+  const precision = numBands >= 5 ? (tol !== null && tol <= 1 ? 'Precision E96' : 'Standard E48') : 'Standard E24';
+  document.getElementById('precisionLabel').textContent = precision;
 }
 
-render();
+function fmtOhm(v) {
+  if (v >= 1e9)  return parseFloat((v/1e9).toPrecision(4));
+  if (v >= 1e6)  return parseFloat((v/1e6).toPrecision(4));
+  if (v >= 1e3)  return parseFloat((v/1e3).toPrecision(4));
+  return parseFloat(v.toPrecision(4));
+}
+function ohmUnit(v) {
+  if (v >= 1e9)  return 'GΩ';
+  if (v >= 1e6)  return 'MΩ';
+  if (v >= 1e3)  return 'kΩ';
+  return 'Ω';
+}
+
+// ── SVG RESISTOR ──────────────────────────────────────────────────────────────
+function updateResistorSVG() {
+  const g = document.getElementById('bandsSVG');
+  g.innerHTML = '';
+  const defs = BAND_DEFS[numBands];
+  const n = defs.length;
+  const bodyX = 82, bodyW = 236;
+  const bw = Math.floor(bodyW / (n * 2.2));
+  const spacing = Math.floor((bodyW - bw * n) / (n + 1));
+  const bh = 60, by = 30;
+  defs.forEach((def, i) => {
+    const color = selections[def.id];
+    if (!color) return;
+    const x = bodyX + spacing + i * (bw + spacing);
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x', x); rect.setAttribute('y', by);
+    rect.setAttribute('width', bw); rect.setAttribute('height', bh);
+    rect.setAttribute('fill', color.hex); rect.setAttribute('rx', 2);
+    rect.style.transition = 'fill .3s';
+    g.appendChild(rect);
+    const hl = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    hl.setAttribute('x', x+2); hl.setAttribute('y', by+4);
+    hl.setAttribute('width', bw-4); hl.setAttribute('height', 6);
+    hl.setAttribute('fill','rgba(255,255,255,.18)'); hl.setAttribute('rx',2);
+    g.appendChild(hl);
+  });
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function setBands(n, btn, isMobile=false) {
+  numBands = n;
+  initSelections();
+  renderBands();
+  ['navTabs','mobileTabs'].forEach(id => {
+    const bar = document.getElementById(id);
+    if (bar) bar.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  });
+  btn.classList.add('active');
+  const otherId = isMobile ? 'navTabs' : 'mobileTabs';
+  const other = document.getElementById(otherId);
+  if (other) {
+    const map = {4:0,5:1,6:2};
+    other.querySelectorAll('.tab-btn')[map[n]]?.classList.add('active');
+  }
+}
+
+// ── SAVE ──────────────────────────────────────────────────────────────────────
+const saved = [];
+function saveResult() {
+  const defs = BAND_DEFS[numBands];
+  const entry = {
+    bands: numBands,
+    colors: defs.map(d => selections[d.id]),
+    label: document.getElementById('resultValue').textContent.replace(/\s+/g,' ').trim()
+      + ' ' + (document.getElementById('resultTolerance').textContent),
+    id: Date.now()
+  };
+  saved.unshift(entry);
+  renderSaved();
+  showToast('✓ Saved!');
+}
+
+function renderSaved() {
+  const sec = document.getElementById('savedSection');
+  const list = document.getElementById('savedList');
+  if (saved.length === 0) { sec.classList.remove('visible'); return; }
+  sec.classList.add('visible');
+  list.innerHTML = '';
+  saved.forEach(entry => {
+    const row = document.createElement('div');
+    row.className = 'saved-item';
+    const dots = entry.colors.map(c =>
+      `<span class="saved-dot" style="background:${c.hex}" title="${c.name}"></span>`
+    ).join('');
+    row.innerHTML = `
+      <div class="saved-item-bands">${dots}</div>
+      <span>${entry.label} &nbsp;(${entry.bands}-band)</span>
+      <button class="del-btn" onclick="deleteSaved(${entry.id})">✕</button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function deleteSaved(id) {
+  const idx = saved.findIndex(e => e.id === id);
+  if (idx > -1) saved.splice(idx, 1);
+  renderSaved();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+initSelections();
+renderBands();
 </script>
-
 </body>
 </html>
