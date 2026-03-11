@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tools</title>
+
+<style>
+    body{
+        font-family: Arial, sans-serif;
+        background: #f4f6f9;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .container{
+        text-align: center;
+    }
+
+    button{
+        display: block;
+        width: 220px;
+        padding: 15px;
+        margin: 15px auto;
+        font-size: 18px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .resistor{
+        background: #2ecc71;
+        color: white;
+    }
+
+    .amazon{
+        background: #ff9900;
+        color: white;
+    }
+
+    button:hover{
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Tools</h2>
+
+    <button class="resistor"
+        onclick="window.location.href='Resistor_calculator.html'">
+        Resistor Calculator
+    </button>
+
+    <button class="amazon"
+        onclick="window.location.href='amazon-calculator.html'">
+        Amazon Calculator
+    </button>
+</div>
+
+</body>
+</html>
