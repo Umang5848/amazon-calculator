@@ -55,22 +55,6 @@
 
   .header-right { display: flex; align-items: center; gap: 0.75rem; }
 
-  /* API key status pill */
-  .api-pill {
-    display: flex; align-items: center; gap: 0.4rem;
-    background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
-    padding: 0.3rem 0.75rem;
-    font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted);
-    cursor: pointer; transition: all 0.2s;
-  }
-  .api-pill:hover { border-color: var(--accent); color: var(--accent); }
-  .api-pill .dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--red); transition: background 0.3s;
-  }
-  .api-pill.active .dot { background: var(--green); }
-  .api-pill.active { border-color: rgba(61,220,132,0.3); }
-
   .btn-add {
     display: flex; align-items: center; gap: 0.45rem;
     background: var(--accent); color: #fff; border: none; border-radius: 8px;
@@ -270,12 +254,6 @@
   .progress-bar-wrap { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
   .progress-bar { height: 100%; width: 0%; background: var(--accent); border-radius: 2px; transition: width 0.3s; }
 
-  /* API key modal */
-  .api-info { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1rem; }
-  .api-info p { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--muted); line-height: 1.7; }
-  .api-info a { color: var(--accent); text-decoration: none; }
-  .api-info a:hover { text-decoration: underline; }
-
   /* ── TOAST ── */
   .toast {
     position: fixed; bottom: 1.75rem; right: 1.75rem; z-index: 300;
@@ -315,10 +293,6 @@
     <div class="logo-sub">// image prompt archive</div>
   </div>
   <div class="header-right">
-    <div class="api-pill" id="apiPill" onclick="openApiModal()" title="Configure ImgBB API Key">
-      <div class="dot"></div>
-      <span id="apiPillText">API Key</span>
-    </div>
     <button class="btn-add" onclick="openAddModal()">
       <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       <span>Add Entry</span>
@@ -416,39 +390,6 @@
   </div>
 </div>
 
-<!-- ══════════════════════ API KEY MODAL ══════════════════════ -->
-<div class="overlay" id="apiOverlay" onclick="overlayClick(event,'apiOverlay')">
-  <div class="modal narrow">
-    <div class="modal-body">
-      <div class="modal-head">
-        <div class="modal-title">ImgBB API Key</div>
-        <button class="modal-close" onclick="closeOverlay('apiOverlay')">
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-
-      <div class="api-info">
-        <p>
-          Images are uploaded to <strong style="color:var(--text)">ImgBB</strong> (free, no account limits).<br>
-          1. Go to <a href="https://api.imgbb.com/" target="_blank">api.imgbb.com</a><br>
-          2. Sign up / log in → click <strong style="color:var(--text)">Get API key</strong><br>
-          3. Copy the key and paste it below.<br><br>
-          <span style="opacity:.6">Your key is stored only in your browser's localStorage — never sent anywhere except ImgBB.</span>
-        </p>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">API Key</label>
-        <input type="text" class="form-input" id="apiKeyInput" placeholder="e.g. 1a2b3c4d5e6f7890abcdef…" autocomplete="off">
-      </div>
-
-      <div class="action-row">
-        <button class="btn-primary" style="justify-content:center" onclick="saveApiKey()">Save Key</button>
-        <button class="btn-ghost del" onclick="removeApiKey()">Remove</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- ══════════════════════ TOAST ══════════════════════ -->
 <div class="toast" id="toast">
@@ -460,11 +401,11 @@
 <script>
 // ── Storage keys
 const ENTRIES_KEY = 'pv_entries';
-const APIKEY_KEY  = 'pv_imgbb_key';
+const IMGBB_KEY   = '2898066ba24fac38d2f2dfe8f9d66686'; // hardcoded
 
 let entries   = [];
 let activeId  = null;
-let pendingFile = null;   // File object waiting to be uploaded
+let pendingFile = null;
 
 // ── Load
 function load() {
@@ -474,22 +415,7 @@ function persist() {
   localStorage.setItem(ENTRIES_KEY, JSON.stringify(entries));
 }
 
-// ── API Key helpers
-function getKey()  { return localStorage.getItem(APIKEY_KEY) || ''; }
-function saveKey(k){ localStorage.setItem(APIKEY_KEY, k); }
-function removeKey(){ localStorage.removeItem(APIKEY_KEY); }
-function refreshApiPill() {
-  const k = getKey();
-  const pill = document.getElementById('apiPill');
-  const txt  = document.getElementById('apiPillText');
-  if (k) {
-    pill.classList.add('active');
-    txt.textContent = '···' + k.slice(-4);
-  } else {
-    pill.classList.remove('active');
-    txt.textContent = 'Set API Key';
-  }
-}
+function getKey() { return IMGBB_KEY; }
 
 // ── Date helper
 function fmtDate(iso) {
@@ -605,11 +531,6 @@ function deleteEntry() {
 
 // ── Add modal
 function openAddModal() {
-  if (!getKey()) {
-    toast('Set your ImgBB API key first!', 'info');
-    openApiModal();
-    return;
-  }
   document.getElementById('fTitle').value = '';
   document.getElementById('fPrompt').value = '';
   document.getElementById('dropPreview').style.display = 'none';
@@ -717,26 +638,7 @@ async function saveEntry() {
   toast('Entry saved! 🎉', 'success');
 }
 
-// ── API Key modal
-function openApiModal() {
-  document.getElementById('apiKeyInput').value = getKey();
-  openOverlay('apiOverlay');
-}
-function saveApiKey() {
-  const k = document.getElementById('apiKeyInput').value.trim();
-  if (!k) { toast('Key cannot be empty', 'error'); return; }
-  saveKey(k);
-  refreshApiPill();
-  closeOverlay('apiOverlay');
-  toast('API key saved ✓', 'success');
-}
-function removeApiKey() {
-  if (!confirm('Remove API key?')) return;
-  removeKey();
-  refreshApiPill();
-  closeOverlay('apiOverlay');
-  toast('API key removed', 'error');
-}
+
 
 // ── Overlay helpers
 function openOverlay(id)  { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
@@ -758,13 +660,12 @@ function toast(msg, type = 'success') {
 // ── Keyboard
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
-    ['viewOverlay','addOverlay','apiOverlay'].forEach(closeOverlay);
+    ['viewOverlay','addOverlay'].forEach(closeOverlay);
   }
 });
 
 // ── Boot
 load();
-refreshApiPill();
 renderGrid();
 </script>
 </body>
