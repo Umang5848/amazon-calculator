@@ -7,7 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #08080e;
@@ -21,325 +21,322 @@
     --text: #e8e8f0;
     --muted: #5a5a78;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; min-height: 100vh; overflow-x: hidden; }
-
   body::before {
-    content: '';
-    position: fixed; inset: 0; pointer-events: none; z-index: 0;
-    background:
-      radial-gradient(ellipse 70% 50% at 15% 5%, rgba(124,106,255,0.07) 0%, transparent 55%),
-      radial-gradient(ellipse 50% 40% at 85% 85%, rgba(255,106,154,0.05) 0%, transparent 55%);
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background: radial-gradient(ellipse 70% 50% at 15% 5%, rgba(124,106,255,0.07) 0%, transparent 55%),
+                radial-gradient(ellipse 50% 40% at 85% 85%, rgba(255,106,154,0.05) 0%, transparent 55%);
   }
 
-  /* ── HEADER ── */
+  /* LOADING BAR */
+  #loadingBar {
+    display: none; position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 999;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent));
+    background-size: 200% 100%; animation: slide 1.4s linear infinite;
+  }
+  @keyframes slide { 0%{background-position:100% 0} 100%{background-position:-100% 0} }
+
+  /* HEADER */
   header {
     position: sticky; top: 0; z-index: 50;
-    background: rgba(8,8,14,0.88); backdrop-filter: blur(24px);
+    background: rgba(8,8,14,0.92); backdrop-filter: blur(24px);
     border-bottom: 1px solid var(--border);
-    padding: 0.9rem 2rem;
+    padding: 0.9rem 1.75rem;
     display: flex; align-items: center; justify-content: space-between; gap: 1rem;
   }
-  .logo-wrap { display: flex; flex-direction: column; gap: 1px; }
-  .logo {
-    font-size: 1.35rem; font-weight: 800; letter-spacing: -0.04em;
-    background: linear-gradient(120deg, var(--accent) 0%, var(--accent2) 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    line-height: 1;
-  }
-  .logo-sub {
-    font-family: 'Space Mono', monospace; font-size: 0.6rem; color: var(--muted);
-    letter-spacing: 0.18em; text-transform: uppercase;
-  }
+  .logo { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1;
+    background: linear-gradient(120deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .logo-sub { font-family: 'Space Mono', monospace; font-size: 0.58rem; color: var(--muted); letter-spacing: 0.18em; text-transform: uppercase; margin-top: 2px; }
+  .hdr-right { display: flex; align-items: center; gap: 0.6rem; }
 
-  .header-right { display: flex; align-items: center; gap: 0.75rem; }
+  /* sync status */
+  .sync-badge {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 0.3rem 0.7rem;
+  }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); transition: background 0.4s; }
+  .sync-dot.ok  { background: var(--green); }
+  .sync-dot.err { background: var(--red); }
+  .sync-dot.loading { background: var(--accent); animation: pulse 0.8s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .btn-icon {
+    display: flex; align-items: center; gap: 0.4rem;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.48rem 0.85rem; color: var(--muted);
+    font-family: 'Syne', sans-serif; font-weight: 600; font-size: 0.8rem;
+    cursor: pointer; transition: all 0.18s;
+  }
+  .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-icon svg { transition: transform 0.5s; }
+  .btn-icon:active svg { transform: rotate(360deg); }
 
   .btn-add {
     display: flex; align-items: center; gap: 0.45rem;
     background: var(--accent); color: #fff; border: none; border-radius: 8px;
-    padding: 0.55rem 1.1rem;
+    padding: 0.52rem 1.1rem;
     font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem;
     cursor: pointer; transition: all 0.2s;
   }
   .btn-add:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(124,106,255,0.4); }
-  .btn-add:active { transform: none; }
 
-  /* ── MAIN ── */
-  main { position: relative; z-index: 1; padding: 1.75rem 2rem; max-width: 1440px; margin: 0 auto; }
+  /* MAIN */
+  main { position: relative; z-index: 1; padding: 1.6rem 1.75rem; max-width: 1440px; margin: 0 auto; }
 
   .top-bar {
     display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap;
-    margin-bottom: 1.75rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border);
+    margin-bottom: 1.6rem; padding-bottom: 1.1rem; border-bottom: 1px solid var(--border);
   }
-  .stat { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); line-height: 1.6; }
-  .stat strong { display: block; font-size: 1.05rem; color: var(--text); }
-
-  .divider { width: 1px; height: 32px; background: var(--border); }
+  .stat { font-family: 'Space Mono', monospace; font-size: 0.68rem; color: var(--muted); line-height: 1.6; }
+  .stat strong { display: block; font-size: 1rem; color: var(--text); }
+  .vdivider { width: 1px; height: 30px; background: var(--border); }
 
   .search-wrap { position: relative; margin-left: auto; }
   .search-wrap input {
     background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
-    padding: 0.5rem 1rem 0.5rem 2.4rem;
-    color: var(--text); font-family: 'Space Mono', monospace; font-size: 0.78rem;
-    width: 210px; outline: none; transition: border-color 0.2s;
+    padding: 0.48rem 1rem 0.48rem 2.3rem;
+    color: var(--text); font-family: 'Space Mono', monospace; font-size: 0.76rem;
+    width: 200px; outline: none; transition: border-color 0.2s;
   }
   .search-wrap input:focus { border-color: var(--accent); }
   .search-wrap input::placeholder { color: var(--muted); }
-  .search-wrap svg { position: absolute; left: 0.7rem; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+  .search-wrap svg { position: absolute; left: 0.65rem; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
 
-  /* ── GRID ── */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-    gap: 1.1rem;
-  }
+  /* GRID */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(265px, 1fr)); gap: 1rem; }
 
   .card {
     background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
     overflow: hidden; cursor: pointer;
     transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), border-color 0.2s, box-shadow 0.2s;
-    animation: fadeUp 0.35s ease both;
+    animation: fadeUp 0.3s ease both;
   }
-  @keyframes fadeUp { from { opacity:0; transform:translateY(16px);} to { opacity:1; transform:translateY(0);} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+  .card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 14px 36px rgba(124,106,255,0.18); }
 
-  .card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 16px 40px rgba(124,106,255,0.18); }
-
-  .card-thumb {
-    width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block;
-    background: var(--surface2);
-  }
-  .card-thumb-placeholder {
+  .card-thumb { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; background: var(--surface2); }
+  .card-thumb-ph {
     width: 100%; aspect-ratio: 4/3;
     background: linear-gradient(135deg, var(--surface2), var(--surface));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 2.5rem; color: var(--muted);
+    display: flex; align-items: center; justify-content: center; font-size: 2.5rem;
   }
-  .card-body { padding: 0.9rem; }
-  .card-title {
-    font-weight: 700; font-size: 0.9rem; margin-bottom: 0.35rem;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
+  .card-body { padding: 0.85rem; }
+  .card-title { font-weight: 700; font-size: 0.88rem; margin-bottom: 0.32rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .card-snippet {
-    font-family: 'Space Mono', monospace; font-size: 0.68rem; color: var(--muted);
-    line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical; overflow: hidden;
+    font-family: 'Space Mono', monospace; font-size: 0.67rem; color: var(--muted);
+    line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
   .card-foot {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 0.65rem 0.9rem; border-top: 1px solid var(--border);
-    background: var(--surface2);
+    padding: 0.6rem 0.85rem; border-top: 1px solid var(--border); background: var(--surface2);
   }
-  .card-date { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: var(--muted); }
+  .card-date { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: var(--muted); }
 
   .btn-qcopy {
-    display: flex; align-items: center; gap: 0.3rem;
-    background: transparent; border: 1px solid var(--border); border-radius: 6px;
-    padding: 0.28rem 0.55rem; color: var(--muted);
-    font-family: 'Space Mono', monospace; font-size: 0.62rem; cursor: pointer; transition: all 0.18s;
+    display: flex; align-items: center; gap: 0.28rem;
+    background: transparent; border: 1px solid var(--border); border-radius: 5px;
+    padding: 0.25rem 0.5rem; color: var(--muted);
+    font-family: 'Space Mono', monospace; font-size: 0.6rem; cursor: pointer; transition: all 0.15s;
   }
   .btn-qcopy:hover { border-color: var(--accent); color: var(--accent); background: rgba(124,106,255,0.08); }
   .btn-qcopy.ok { border-color: var(--green); color: var(--green); background: rgba(61,220,132,0.08); }
 
-  /* ── EMPTY ── */
+  /* EMPTY */
   .empty { grid-column: 1/-1; text-align: center; padding: 5rem 1rem; }
   .empty-icon { font-size: 3.5rem; margin-bottom: 1rem; opacity: 0.3; }
-  .empty h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.4rem; }
-  .empty p { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--muted); }
+  .empty h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.35rem; }
+  .empty p { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--muted); }
 
-  /* ── MODALS ── */
+  /* OVERLAY */
   .overlay {
     position: fixed; inset: 0; z-index: 100;
-    background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+    background: rgba(0,0,0,0.82); backdrop-filter: blur(10px);
     display: flex; align-items: center; justify-content: center;
     padding: 1.25rem; opacity: 0; pointer-events: none; transition: opacity 0.22s;
   }
   .overlay.open { opacity: 1; pointer-events: all; }
-
   .modal {
     background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
-    width: 100%; max-width: 660px; max-height: 92vh; overflow-y: auto;
+    width: 100%; max-width: 640px; max-height: 92vh; overflow-y: auto;
     transform: scale(0.93) translateY(18px);
     transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
   }
   .overlay.open .modal { transform: scale(1) translateY(0); }
-  .modal.narrow { max-width: 480px; }
+  .modal.sm { max-width: 460px; }
 
-  .modal-img { width: 100%; max-height: 360px; object-fit: cover; border-radius: 14px 14px 0 0; display: block; }
-  .modal-img-ph {
-    width: 100%; height: 180px; border-radius: 14px 14px 0 0;
-    background: linear-gradient(135deg, var(--surface2), var(--bg));
-    display: flex; align-items: center; justify-content: center; font-size: 3rem;
-  }
+  .modal-img { width: 100%; max-height: 340px; object-fit: cover; border-radius: 14px 14px 0 0; display: block; }
+  .modal-img-ph { width: 100%; height: 160px; border-radius: 14px 14px 0 0; background: linear-gradient(135deg,var(--surface2),var(--bg)); display: flex; align-items: center; justify-content: center; font-size: 3rem; }
 
-  .modal-body { padding: 1.4rem; }
-  .modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.1rem; }
-  .modal-title { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.025em; }
-  .modal-subtitle { font-family: 'Space Mono', monospace; font-size: 0.67rem; color: var(--muted); margin-top: 3px; }
-
+  .modal-body { padding: 1.3rem; }
+  .modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+  .modal-title { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.025em; }
+  .modal-sub { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); margin-top: 3px; }
   .modal-close {
     background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
-    width: 34px; height: 34px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; color: var(--muted); transition: all 0.18s;
+    width: 32px; height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--muted); transition: all 0.15s;
   }
   .modal-close:hover { color: var(--text); border-color: var(--muted); }
 
-  .section-label {
-    font-family: 'Space Mono', monospace; font-size: 0.62rem; text-transform: uppercase;
-    letter-spacing: 0.14em; color: var(--accent); margin-bottom: 0.5rem;
-    display: flex; align-items: center; gap: 0.35rem;
+  .sec-label {
+    font-family: 'Space Mono', monospace; font-size: 0.6rem; text-transform: uppercase;
+    letter-spacing: 0.14em; color: var(--accent); margin-bottom: 0.45rem;
+    display: flex; align-items: center; gap: 0.3rem;
   }
   .prompt-box {
-    background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
-    padding: 0.9rem 1rem; font-family: 'Space Mono', monospace; font-size: 0.78rem;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 9px;
+    padding: 0.85rem 0.95rem; font-family: 'Space Mono', monospace; font-size: 0.76rem;
     line-height: 1.7; color: var(--text); white-space: pre-wrap; word-break: break-word;
-    max-height: 200px; overflow-y: auto; margin-bottom: 1rem;
+    max-height: 190px; overflow-y: auto; margin-bottom: 0.95rem;
   }
-
-  .action-row { display: flex; gap: 0.65rem; flex-wrap: wrap; }
+  .act-row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
 
   .btn-primary {
-    flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.45rem;
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.4rem;
     background: var(--accent); color: #fff; border: none; border-radius: 8px;
-    padding: 0.7rem 1.1rem; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.88rem;
-    cursor: pointer; transition: all 0.2s; min-width: 140px;
+    padding: 0.68rem 1rem; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.86rem;
+    cursor: pointer; transition: all 0.18s; min-width: 120px;
   }
   .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
   .btn-primary.ok { background: var(--green); color: #000; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-  .btn-ghost {
+  .btn-danger {
     display: flex; align-items: center; gap: 0.4rem;
     background: transparent; border: 1px solid var(--border); color: var(--muted);
-    border-radius: 8px; padding: 0.7rem 0.95rem;
+    border-radius: 8px; padding: 0.68rem 0.9rem;
     font-family: 'Syne', sans-serif; font-weight: 600; font-size: 0.82rem;
     cursor: pointer; transition: all 0.18s;
   }
-  .btn-ghost.del:hover { border-color: var(--red); color: var(--red); background: rgba(255,77,106,0.08); }
-  .btn-ghost:hover { border-color: var(--muted); color: var(--text); }
+  .btn-danger:hover { border-color: var(--red); color: var(--red); background: rgba(255,77,106,0.08); }
 
-  /* ── FORM ── */
-  .form-group { margin-bottom: 1.15rem; }
-  .form-label {
-    display: block; font-family: 'Space Mono', monospace; font-size: 0.67rem;
-    text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.45rem;
-  }
-  .form-input, .form-textarea {
+  /* FORM */
+  .fg { margin-bottom: 1.1rem; }
+  .flabel { display: block; font-family: 'Space Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.42rem; }
+  .finput, .ftextarea {
     width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
-    padding: 0.7rem 0.95rem; color: var(--text);
-    font-family: 'Syne', sans-serif; font-size: 0.88rem; outline: none;
-    transition: border-color 0.18s;
+    padding: 0.68rem 0.9rem; color: var(--text); font-family: 'Syne', sans-serif; font-size: 0.86rem;
+    outline: none; transition: border-color 0.18s;
   }
-  .form-input:focus, .form-textarea:focus { border-color: var(--accent); }
-  .form-input::placeholder, .form-textarea::placeholder { color: var(--muted); }
-  .form-textarea { min-height: 95px; resize: vertical; font-family: 'Space Mono', monospace; font-size: 0.8rem; line-height: 1.6; }
+  .finput:focus, .ftextarea:focus { border-color: var(--accent); }
+  .finput::placeholder, .ftextarea::placeholder { color: var(--muted); }
+  .ftextarea { min-height: 90px; resize: vertical; font-family: 'Space Mono', monospace; font-size: 0.78rem; line-height: 1.6; }
 
-  /* Upload zone */
   .drop-zone {
-    border: 2px dashed var(--border); border-radius: 10px; padding: 1.75rem;
-    text-align: center; cursor: pointer; transition: all 0.2s;
-    background: var(--bg); position: relative;
+    border: 2px dashed var(--border); border-radius: 10px; padding: 1.5rem;
+    text-align: center; cursor: pointer; transition: all 0.2s; background: var(--bg); position: relative;
   }
   .drop-zone:hover, .drop-zone.over { border-color: var(--accent); background: rgba(124,106,255,0.04); }
   .drop-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-  .drop-text { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--muted); line-height: 1.7; }
-  .drop-preview { width: 100%; max-height: 160px; object-fit: cover; border-radius: 7px; margin-top: 0.75rem; display: none; }
+  .drop-text { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); line-height: 1.7; }
+  .drop-preview { width: 100%; max-height: 150px; object-fit: cover; border-radius: 7px; margin-top: 0.7rem; display: none; }
 
-  /* Upload progress */
-  .upload-progress {
-    display: none; align-items: center; gap: 0.75rem; margin-top: 0.6rem;
-    font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--muted);
-  }
-  .upload-progress.show { display: flex; }
-  .progress-bar-wrap { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
-  .progress-bar { height: 100%; width: 0%; background: var(--accent); border-radius: 2px; transition: width 0.3s; }
+  .uprog { display: none; align-items: center; gap: 0.7rem; margin-top: 0.55rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); }
+  .uprog.show { display: flex; }
+  .uprog-bar-wrap { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .uprog-bar { height: 100%; width: 0%; background: var(--accent); border-radius: 2px; transition: width 0.3s; }
 
-  /* ── TOAST ── */
+  /* TOAST */
   .toast {
-    position: fixed; bottom: 1.75rem; right: 1.75rem; z-index: 300;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; padding: 0.7rem 1.1rem;
-    font-family: 'Space Mono', monospace; font-size: 0.78rem; color: var(--text);
-    display: flex; align-items: center; gap: 0.55rem;
-    transform: translateY(110%); transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
-    max-width: 320px;
+    position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 999;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 0.65rem 1rem; font-family: 'Space Mono', monospace; font-size: 0.76rem; color: var(--text);
+    display: flex; align-items: center; gap: 0.5rem;
+    transform: translateY(120%); transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
+    max-width: 300px;
   }
   .toast.show { transform: translateY(0); }
   .toast.success { border-color: var(--green); }
-  .toast.error { border-color: var(--red); }
-  .toast.info { border-color: var(--accent); }
+  .toast.error   { border-color: var(--red); }
+  .toast.info    { border-color: var(--accent); }
 
-  /* ── SCROLLBAR ── */
   ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-  /* ── RESPONSIVE ── */
-  @media(max-width:580px) {
+  @media(max-width:560px) {
     header { padding: 0.75rem 1rem; }
     main { padding: 1rem; }
-    .logo { font-size: 1.1rem; }
-    .search-wrap input { width: 150px; }
+    .sync-badge span { display: none; }
     .btn-add span { display: none; }
   }
 </style>
 </head>
 <body>
 
-<!-- ══════════════════════ HEADER ══════════════════════ -->
+<div id="loadingBar"></div>
+
+<!-- HEADER -->
 <header>
-  <div class="logo-wrap">
+  <div>
     <div class="logo">PromptVault</div>
     <div class="logo-sub">// image prompt archive</div>
   </div>
-  <div class="header-right">
-    <button class="btn-add" onclick="openAddModal()">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  <div class="hdr-right">
+    <div class="sync-badge">
+      <div class="sync-dot" id="syncDot"></div>
+      <span id="syncText">loading…</span>
+    </div>
+    <button class="btn-icon" onclick="loadFromGitHub()" title="Refresh">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      Sync
+    </button>
+    <button class="btn-add" onclick="openAdd()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       <span>Add Entry</span>
     </button>
   </div>
 </header>
 
-<!-- ══════════════════════ MAIN ══════════════════════ -->
+<!-- MAIN -->
 <main>
   <div class="top-bar">
-    <div class="stat"><strong id="statCount">0</strong>entries</div>
-    <div class="divider"></div>
+    <div class="stat"><strong id="statCount">—</strong>entries</div>
+    <div class="vdivider"></div>
     <div class="stat"><strong id="statDate">—</strong>last saved</div>
     <div class="search-wrap">
       <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="searchInput" placeholder="search title or prompt…" oninput="renderGrid()">
+      <input type="text" id="searchInput" placeholder="search…" oninput="renderGrid()">
     </div>
   </div>
-  <div class="grid" id="grid"></div>
+  <div class="grid" id="grid">
+    <div class="empty">
+      <div class="empty-icon">⏳</div>
+      <h3>Loading from GitHub…</h3>
+      <p>Fetching your data</p>
+    </div>
+  </div>
 </main>
 
-<!-- ══════════════════════ VIEW MODAL ══════════════════════ -->
-<div class="overlay" id="viewOverlay" onclick="overlayClick(event,'viewOverlay')">
+<!-- VIEW MODAL -->
+<div class="overlay" id="viewOverlay" onclick="bgClose(event,'viewOverlay')">
   <div class="modal">
     <div id="viewImgWrap"></div>
     <div class="modal-body">
       <div class="modal-head">
         <div>
           <div class="modal-title" id="viewTitle"></div>
-          <div class="modal-subtitle" id="viewDate"></div>
+          <div class="modal-sub" id="viewDate"></div>
         </div>
-        <button class="modal-close" onclick="closeOverlay('viewOverlay')">
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <button class="modal-close" onclick="closeOv('viewOverlay')">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
-      <div class="section-label">
+      <div class="sec-label">
         <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Full Prompt
       </div>
       <div class="prompt-box" id="viewPrompt"></div>
-      <div class="action-row">
-        <button class="btn-primary" id="viewCopyBtn" onclick="copyFromView()">
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      <div class="act-row">
+        <button class="btn-primary" id="viewCopyBtn" onclick="copyPrompt()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           Copy Prompt
         </button>
-        <button class="btn-ghost del" onclick="deleteEntry()">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg>
+        <button class="btn-danger" onclick="deleteEntry()">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2"/></svg>
           Delete
         </button>
       </div>
@@ -347,107 +344,223 @@
   </div>
 </div>
 
-<!-- ══════════════════════ ADD MODAL ══════════════════════ -->
-<div class="overlay" id="addOverlay" onclick="overlayClick(event,'addOverlay')">
-  <div class="modal narrow">
+<!-- ADD MODAL -->
+<div class="overlay" id="addOverlay" onclick="bgClose(event,'addOverlay')">
+  <div class="modal sm">
     <div class="modal-body">
       <div class="modal-head">
         <div class="modal-title">New Entry</div>
-        <button class="modal-close" onclick="closeOverlay('addOverlay')">
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <button class="modal-close" onclick="closeOv('addOverlay')">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
-
-      <div class="form-group">
-        <label class="form-label">Title</label>
-        <input type="text" class="form-input" id="fTitle" placeholder="e.g. Neon cityscape at dusk">
+      <div class="fg">
+        <label class="flabel">Title</label>
+        <input type="text" class="finput" id="fTitle" placeholder="e.g. Neon cityscape at dusk">
       </div>
-
-      <div class="form-group">
-        <label class="form-label">Image (uploaded to ImgBB)</label>
+      <div class="fg">
+        <label class="flabel">Image (uploaded to ImgBB)</label>
         <div class="drop-zone" id="dropZone">
-          <input type="file" accept="image/*" id="imgFile" onchange="handleFilePick(event)">
-          <div style="font-size:1.8rem;margin-bottom:0.4rem">🖼️</div>
-          <div class="drop-text">Drop image here or <u>click to browse</u><br><span style="opacity:.55">PNG · JPG · WEBP · GIF — max 32 MB</span></div>
-          <img id="dropPreview" class="drop-preview" alt="preview">
+          <input type="file" accept="image/*" id="imgFile" onchange="pickFile(event)">
+          <div style="font-size:1.7rem;margin-bottom:0.35rem">🖼️</div>
+          <div class="drop-text">Drop image here or <u>click to browse</u><br><span style="opacity:.5">PNG · JPG · WEBP · GIF</span></div>
+          <img id="dropPreview" class="drop-preview">
         </div>
-        <div class="upload-progress" id="uploadProgress">
-          <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
-          <span id="progressLabel">Uploading…</span>
+        <div class="uprog" id="uprog">
+          <div class="uprog-bar-wrap"><div class="uprog-bar" id="uprogBar"></div></div>
+          <span id="uprogLabel">Uploading…</span>
         </div>
       </div>
-
-      <div class="form-group">
-        <label class="form-label">Prompt</label>
-        <textarea class="form-textarea" id="fPrompt" placeholder="Paste your full AI image generation prompt here…"></textarea>
+      <div class="fg">
+        <label class="flabel">Prompt</label>
+        <textarea class="ftextarea" id="fPrompt" placeholder="Paste your full AI image generation prompt…"></textarea>
       </div>
-
-      <button class="btn-primary" style="width:100%;justify-content:center" onclick="saveEntry()">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      <button class="btn-primary" id="saveBtn" style="width:100%" onclick="saveEntry()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
         Save Entry
       </button>
     </div>
   </div>
 </div>
 
-
-<!-- ══════════════════════ TOAST ══════════════════════ -->
+<!-- TOAST -->
 <div class="toast" id="toast">
   <span id="toastIcon"></span>
   <span id="toastMsg"></span>
 </div>
 
-<!-- ══════════════════════ SCRIPT ══════════════════════ -->
 <script>
-// ── Storage keys
-const ENTRIES_KEY = 'pv_entries';
-const IMGBB_KEY   = '2898066ba24fac38d2f2dfe8f9d66686'; // hardcoded
+// ════════════════════════════════════════════
+//  CONFIG — all hardcoded
+// ════════════════════════════════════════════
+const IMGBB_KEY = '2898066ba24fac38d2f2dfe8f9d66686';
+const GH_TOKEN  = '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';
+const GH_OWNER  = 'Umang5848';
+const GH_REPO   = 'RoboPrime';
+const GH_FILE   = 'vault-data.json';
 
-let entries   = [];
-let activeId  = null;
+// GitHub API endpoint for read/write
+const GH_API_URL = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`;
+// Raw URL — bypasses ALL caching, always fresh
+const GH_RAW_URL = `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/main/${GH_FILE}`;
+
+// ════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════
+let entries    = [];
+let fileSha    = null;
+let activeId   = null;
 let pendingFile = null;
 
-// ── Load
-function load() {
-  try { entries = JSON.parse(localStorage.getItem(ENTRIES_KEY)) || []; } catch { entries = []; }
-}
-function persist() {
-  localStorage.setItem(ENTRIES_KEY, JSON.stringify(entries));
+// ════════════════════════════════════════════
+//  GITHUB READ  (raw URL + cache-bust = always fresh)
+// ════════════════════════════════════════════
+async function loadFromGitHub() {
+  setSyncState('loading', 'syncing…');
+  setLoadingBar(true);
+  try {
+    // Step 1: get SHA via API (needed for writes)
+    const apiRes = await fetch(GH_API_URL, {
+      headers: {
+        Authorization: `Bearer ${GH_TOKEN}`,
+        Accept: 'application/vnd.github+json'
+      }
+    });
+
+    if (apiRes.status === 404) {
+      // File doesn't exist yet — empty vault
+      entries = [];
+      fileSha = null;
+      setSyncState('ok', 'ready');
+      renderGrid();
+      return;
+    }
+
+    if (!apiRes.ok) throw new Error(`GitHub API error ${apiRes.status}`);
+    const meta = await apiRes.json();
+    fileSha = meta.sha;
+
+    // Step 2: fetch raw content with cache-bust so we ALWAYS get latest
+    const rawRes = await fetch(GH_RAW_URL + '?t=' + Date.now(), {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' }
+    });
+
+    if (!rawRes.ok) throw new Error(`Raw fetch error ${rawRes.status}`);
+    const text = await rawRes.text();
+    entries = JSON.parse(text);
+    setSyncState('ok', `synced`);
+  } catch (err) {
+    console.error('Load error:', err);
+    setSyncState('err', 'error');
+    toast('Load failed: ' + err.message, 'error');
+    entries = [];
+  } finally {
+    setLoadingBar(false);
+    renderGrid();
+  }
 }
 
-function getKey() { return IMGBB_KEY; }
+// ════════════════════════════════════════════
+//  GITHUB WRITE
+// ════════════════════════════════════════════
+async function saveToGitHub() {
+  setSyncState('loading', 'saving…');
+  const jsonStr = JSON.stringify(entries, null, 2);
+  // btoa can't handle unicode — encode properly
+  const b64 = btoa(unescape(encodeURIComponent(jsonStr)));
 
-// ── Date helper
-function fmtDate(iso) {
-  return new Date(iso).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+  const body = {
+    message: `vault update ${new Date().toISOString()}`,
+    content: b64,
+    ...(fileSha ? { sha: fileSha } : {})
+  };
+
+  const res = await fetch(GH_API_URL, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${GH_TOKEN}`,
+      Accept: 'application/vnd.github+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!res.ok) {
+    const errJson = await res.json().catch(() => ({}));
+    throw new Error(errJson.message || `GitHub write failed ${res.status}`);
+  }
+
+  const data = await res.json();
+  fileSha = data.content.sha;  // always update sha
+  setSyncState('ok', 'synced');
 }
 
-// ── Render
+// ════════════════════════════════════════════
+//  IMGBB UPLOAD
+// ════════════════════════════════════════════
+async function uploadImgBB(file) {
+  const prog = document.getElementById('uprog');
+  const bar  = document.getElementById('uprogBar');
+  const lbl  = document.getElementById('uprogLabel');
+  prog.classList.add('show');
+  bar.style.width = '8%';
+  lbl.textContent = 'Uploading image…';
+
+  // fake progress
+  let pct = 8;
+  const ticker = setInterval(() => {
+    pct = Math.min(pct + Math.random() * 12, 82);
+    bar.style.width = pct + '%';
+  }, 280);
+
+  try {
+    const fd = new FormData();
+    fd.append('image', file);
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {
+      method: 'POST', body: fd
+    });
+    clearInterval(ticker);
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error?.message || 'ImgBB upload failed');
+    bar.style.width = '100%';
+    lbl.textContent = '✓ Image uploaded';
+    return data.data.url;
+  } catch (err) {
+    clearInterval(ticker);
+    bar.style.width = '0%';
+    lbl.textContent = '✗ Upload failed';
+    throw err;
+  }
+}
+
+// ════════════════════════════════════════════
+//  RENDER GRID
+// ════════════════════════════════════════════
 function renderGrid() {
   const q = document.getElementById('searchInput').value.toLowerCase().trim();
-  const list = q ? entries.filter(e =>
-    e.title.toLowerCase().includes(q) || e.prompt.toLowerCase().includes(q)
-  ) : entries;
+  const list = q
+    ? entries.filter(e => e.title.toLowerCase().includes(q) || e.prompt.toLowerCase().includes(q))
+    : entries;
 
   document.getElementById('statCount').textContent = entries.length;
-  document.getElementById('statDate').textContent = entries.length ? fmtDate(entries[0].date) : '—';
+  document.getElementById('statDate').textContent  = entries.length ? fmtDate(entries[0].date) : '—';
 
   const grid = document.getElementById('grid');
   if (!list.length) {
-    grid.innerHTML = `
-      <div class="empty">
-        <div class="empty-icon">${entries.length === 0 ? '📭' : '🔍'}</div>
-        <h3>${entries.length === 0 ? 'Vault is empty' : 'Nothing found'}</h3>
-        <p>${entries.length === 0 ? 'Add your first entry to get started.' : 'Try a different search.'}</p>
-      </div>`;
+    grid.innerHTML = `<div class="empty">
+      <div class="empty-icon">${entries.length === 0 ? '📭' : '🔍'}</div>
+      <h3>${entries.length === 0 ? 'Vault is empty' : 'Nothing found'}</h3>
+      <p>${entries.length === 0 ? 'Click "Add Entry" to save your first prompt.' : 'Try a different search term.'}</p>
+    </div>`;
     return;
   }
 
   grid.innerHTML = list.map((e, i) => `
-    <div class="card" style="animation-delay:${i*0.04}s" onclick="openEntry('${e.id}')">
+    <div class="card" style="animation-delay:${i * 0.035}s" onclick="openEntry('${e.id}')">
       ${e.imgUrl
         ? `<img class="card-thumb" src="${e.imgUrl}" alt="${esc(e.title)}" loading="lazy">`
-        : `<div class="card-thumb-placeholder">🖼️</div>`}
+        : `<div class="card-thumb-ph">🖼️</div>`}
       <div class="card-body">
         <div class="card-title">${esc(e.title)}</div>
         <div class="card-snippet">${esc(e.prompt)}</div>
@@ -455,7 +568,7 @@ function renderGrid() {
       <div class="card-foot">
         <span class="card-date">${fmtDate(e.date)}</span>
         <button class="btn-qcopy" id="qc-${e.id}" onclick="quickCopy(event,'${e.id}')">
-          <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <svg width="9" height="9" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           copy
         </button>
       </div>
@@ -463,11 +576,57 @@ function renderGrid() {
   `).join('');
 }
 
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+// ════════════════════════════════════════════
+//  ACTIONS
+// ════════════════════════════════════════════
+function openEntry(id) {
+  const e = entries.find(x => x.id === id);
+  if (!e) return;
+  activeId = id;
+  document.getElementById('viewImgWrap').innerHTML = e.imgUrl
+    ? `<img class="modal-img" src="${e.imgUrl}" alt="${esc(e.title)}">`
+    : `<div class="modal-img-ph">🖼️</div>`;
+  document.getElementById('viewTitle').textContent = e.title;
+  document.getElementById('viewDate').textContent  = fmtDate(e.date);
+  document.getElementById('viewPrompt').textContent = e.prompt;
+  resetCopyBtn();
+  openOv('viewOverlay');
 }
 
-// ── Quick copy on card
+function copyPrompt() {
+  const e = entries.find(x => x.id === activeId);
+  if (!e) return;
+  navigator.clipboard.writeText(e.prompt).then(() => {
+    const btn = document.getElementById('viewCopyBtn');
+    btn.classList.add('ok');
+    btn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
+    toast('Prompt copied! ✨', 'success');
+    setTimeout(resetCopyBtn, 2500);
+  });
+}
+
+function resetCopyBtn() {
+  const btn = document.getElementById('viewCopyBtn');
+  btn.classList.remove('ok');
+  btn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Prompt`;
+}
+
+async function deleteEntry() {
+  if (!activeId || !confirm('Delete this entry?')) return;
+  const backup = [...entries];
+  entries = entries.filter(x => x.id !== activeId);
+  closeOv('viewOverlay');
+  renderGrid();
+  toast('Deleting…', 'info');
+  try {
+    await saveToGitHub();
+    toast('Deleted & synced', 'error');
+  } catch (err) {
+    entries = backup; renderGrid();
+    toast('Delete failed: ' + err.message, 'error');
+  }
+}
+
 function quickCopy(ev, id) {
   ev.stopPropagation();
   const e = entries.find(x => x.id === id);
@@ -475,87 +634,40 @@ function quickCopy(ev, id) {
   navigator.clipboard.writeText(e.prompt).then(() => {
     const btn = document.getElementById('qc-' + id);
     btn.classList.add('ok');
-    btn.innerHTML = `<svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> done`;
+    btn.innerHTML = `<svg width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> done`;
     setTimeout(() => {
       btn.classList.remove('ok');
-      btn.innerHTML = `<svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> copy`;
+      btn.innerHTML = `<svg width="9" height="9" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> copy`;
     }, 2000);
-    toast('Prompt copied!', 'success');
+    toast('Copied!', 'success');
   });
 }
 
-// ── Open entry view
-function openEntry(id) {
-  const e = entries.find(x => x.id === id);
-  if (!e) return;
-  activeId = id;
-
-  document.getElementById('viewImgWrap').innerHTML = e.imgUrl
-    ? `<img class="modal-img" src="${e.imgUrl}" alt="${esc(e.title)}">`
-    : `<div class="modal-img-ph">🖼️</div>`;
-
-  document.getElementById('viewTitle').textContent = e.title;
-  document.getElementById('viewDate').textContent = fmtDate(e.date);
-  document.getElementById('viewPrompt').textContent = e.prompt;
-
-  const btn = document.getElementById('viewCopyBtn');
-  btn.classList.remove('ok');
-  btn.innerHTML = `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Prompt`;
-
-  openOverlay('viewOverlay');
-}
-
-function copyFromView() {
-  const e = entries.find(x => x.id === activeId);
-  if (!e) return;
-  navigator.clipboard.writeText(e.prompt).then(() => {
-    const btn = document.getElementById('viewCopyBtn');
-    btn.classList.add('ok');
-    btn.innerHTML = `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
-    toast('Prompt copied! ✨', 'success');
-    setTimeout(() => {
-      btn.classList.remove('ok');
-      btn.innerHTML = `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Prompt`;
-    }, 2600);
-  });
-}
-
-function deleteEntry() {
-  if (!activeId || !confirm('Delete this entry?')) return;
-  entries = entries.filter(x => x.id !== activeId);
-  persist();
-  closeOverlay('viewOverlay');
-  renderGrid();
-  toast('Entry deleted', 'error');
-}
-
-// ── Add modal
-function openAddModal() {
-  document.getElementById('fTitle').value = '';
-  document.getElementById('fPrompt').value = '';
+// ════════════════════════════════════════════
+//  ADD MODAL
+// ════════════════════════════════════════════
+function openAdd() {
+  document.getElementById('fTitle').value   = '';
+  document.getElementById('fPrompt').value  = '';
   document.getElementById('dropPreview').style.display = 'none';
   document.getElementById('dropPreview').src = '';
-  document.getElementById('uploadProgress').classList.remove('show');
-  document.getElementById('progressBar').style.width = '0%';
+  document.getElementById('uprog').classList.remove('show');
+  document.getElementById('uprogBar').style.width = '0%';
+  document.getElementById('imgFile').value = '';
   pendingFile = null;
-  openOverlay('addOverlay');
-  setTimeout(() => document.getElementById('fTitle').focus(), 300);
+  openOv('addOverlay');
+  setTimeout(() => document.getElementById('fTitle').focus(), 280);
 }
 
-// ── File pick / drag-drop
-function handleFilePick(ev) {
-  const file = ev.target.files[0];
-  if (file) setPreview(file);
-}
-function setPreview(file) {
+function pickFile(ev) { if (ev.target.files[0]) previewFile(ev.target.files[0]); }
+function previewFile(file) {
   pendingFile = file;
-  const reader = new FileReader();
-  reader.onload = ev => {
+  const r = new FileReader();
+  r.onload = ev => {
     const p = document.getElementById('dropPreview');
-    p.src = ev.target.result;
-    p.style.display = 'block';
+    p.src = ev.target.result; p.style.display = 'block';
   };
-  reader.readAsDataURL(file);
+  r.readAsDataURL(file);
 }
 
 const dz = document.getElementById('dropZone');
@@ -564,109 +676,97 @@ dz.addEventListener('dragleave', () => dz.classList.remove('over'));
 dz.addEventListener('drop', e => {
   e.preventDefault(); dz.classList.remove('over');
   const f = e.dataTransfer.files[0];
-  if (f && f.type.startsWith('image/')) setPreview(f);
+  if (f && f.type.startsWith('image/')) previewFile(f);
 });
 
-// ── ImgBB upload
-async function uploadToImgBB(file) {
-  const key = getKey();
-  if (!key) throw new Error('No API key set');
-
-  const prog = document.getElementById('uploadProgress');
-  const bar  = document.getElementById('progressBar');
-  const lbl  = document.getElementById('progressLabel');
-  prog.classList.add('show');
-  bar.style.width = '10%';
-  lbl.textContent = 'Uploading to ImgBB…';
-
-  const formData = new FormData();
-  formData.append('image', file);
-
-  // Fake progress animation
-  let pct = 10;
-  const ticker = setInterval(() => {
-    pct = Math.min(pct + Math.random() * 15, 85);
-    bar.style.width = pct + '%';
-  }, 300);
-
-  try {
-    const res = await fetch(`https://api.imgbb.com/1/upload?key=${key}`, {
-      method: 'POST', body: formData
-    });
-    clearInterval(ticker);
-    const data = await res.json();
-    if (!data.success) throw new Error(data.error?.message || 'Upload failed');
-    bar.style.width = '100%';
-    lbl.textContent = 'Upload complete ✓';
-    return data.data.url;            // permanent display URL
-  } catch (err) {
-    clearInterval(ticker);
-    bar.style.width = '0%';
-    lbl.textContent = 'Upload failed ✗';
-    throw err;
-  }
-}
-
-// ── Save entry
 async function saveEntry() {
   const title  = document.getElementById('fTitle').value.trim();
   const prompt = document.getElementById('fPrompt').value.trim();
-
   if (!title)  { toast('Please add a title', 'error'); return; }
   if (!prompt) { toast('Please add a prompt', 'error'); return; }
 
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  btn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="animation:spin 1s linear infinite"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Saving…`;
+
   let imgUrl = null;
   if (pendingFile) {
-    try {
-      imgUrl = await uploadToImgBB(pendingFile);
-    } catch (err) {
+    try { imgUrl = await uploadImgBB(pendingFile); }
+    catch (err) {
       toast('Image upload failed: ' + err.message, 'error');
+      btn.disabled = false;
+      btn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Save Entry`;
       return;
     }
   }
 
   const entry = {
-    id:     'e_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+    id:    'e_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
     title, prompt, imgUrl,
-    date:   new Date().toISOString()
+    date:  new Date().toISOString()
   };
 
   entries.unshift(entry);
-  persist();
-  closeOverlay('addOverlay');
+  closeOv('addOverlay');
   renderGrid();
-  toast('Entry saved! 🎉', 'success');
+  toast('Syncing to GitHub…', 'info');
+
+  try {
+    await saveToGitHub();
+    toast('Saved & synced! 🎉', 'success');
+  } catch (err) {
+    entries = entries.filter(x => x.id !== entry.id);
+    renderGrid();
+    toast('Sync failed: ' + err.message, 'error');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Save Entry`;
 }
 
+// ════════════════════════════════════════════
+//  UI HELPERS
+// ════════════════════════════════════════════
+function openOv(id)  { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeOv(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+function bgClose(ev, id) { if (ev.target === document.getElementById(id)) closeOv(id); }
 
+function setLoadingBar(on) { document.getElementById('loadingBar').style.display = on ? 'block' : 'none'; }
 
-// ── Overlay helpers
-function openOverlay(id)  { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
-function closeOverlay(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
-function overlayClick(ev, id) { if (ev.target === document.getElementById(id)) closeOverlay(id); }
+function setSyncState(state, text) {
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncText');
+  dot.className = 'sync-dot ' + state;
+  txt.textContent = text;
+}
 
-// ── Toast
-let toastTimer;
+let toastT;
 function toast(msg, type = 'success') {
-  const icons = { success: '✓', error: '✕', info: 'ℹ' };
-  const t = document.getElementById('toast');
+  const icons = { success: '✓', error: '✕', info: '↻' };
+  const el = document.getElementById('toast');
   document.getElementById('toastIcon').textContent = icons[type] || '•';
   document.getElementById('toastMsg').textContent  = msg;
-  t.className = `toast ${type} show`;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  el.className = `toast ${type} show`;
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove('show'), 3000);
 }
 
-// ── Keyboard
+function fmtDate(iso) {
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    ['viewOverlay','addOverlay'].forEach(closeOverlay);
-  }
+  if (e.key === 'Escape') ['viewOverlay','addOverlay'].forEach(closeOv);
 });
 
-// ── Boot
-load();
-renderGrid();
+// ════════════════════════════════════════════
+//  BOOT — load fresh from GitHub
+// ════════════════════════════════════════════
+loadFromGitHub();
 </script>
 </body>
 </html>
